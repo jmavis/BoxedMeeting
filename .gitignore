@@ -1,0 +1,17 @@
+.metadata
+
+/bin
+
+/gen
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# OS X stuff
+.DS_Store
+memory/.DS_Store
+
