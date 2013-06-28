@@ -6,28 +6,26 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity"
+    android:id="@+id/backgroundLayout" >
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/startStopButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="42dp"
-        android:text="Start" />
+        android:text="@string/Start" />
 
-    <EditText
-        android:id="@+id/editText1"
+    <TextView
+        android:id="@+id/displayText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/button1"
+        android:layout_alignBottom="@+id/startStopButton"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp"
-        android:ems="10"
-        android:inputType="number" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_marginBottom="64dp"
+        android:text="00:00"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

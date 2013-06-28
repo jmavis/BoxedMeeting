@@ -16,7 +16,6 @@
 
 package com.JaredMavis.boxedmeeting;
 
-import com.JaredMavis.boxedmeeting.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;

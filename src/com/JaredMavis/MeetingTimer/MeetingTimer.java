@@ -8,8 +8,6 @@ import android.util.Log;
 public class MeetingTimer {
 	private String TAG = "MeetingTimer";
 	
-	public static final String TimerChange = "TimerChange";
-	public static final String TimerFinish = "TimerFinish";
 	private static final long updateInterval = 1000; // in ms
 	
 	private Boolean isRunning;

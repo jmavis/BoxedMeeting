@@ -3,6 +3,8 @@ package com.JaredMavis.MeetingTimer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import com.JaredMavis.boxedmeeting.R;
+
 import android.os.CountDownTimer;
 import android.util.Log;
 
@@ -21,13 +23,13 @@ public class MeetingCountDownTimer extends CountDownTimer{
 	@Override
 	public void onFinish() {
 		Log.d(TAG, "onFinish()");
-		_listener.propertyChange(new PropertyChangeEvent(this, MeetingTimer.TimerFinish, 0, _timeLeft));
+		_listener.propertyChange(new PropertyChangeEvent(this, Integer.toString(R.string.Value_TimerFinished), 0, _timeLeft));
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
 		Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
-		_listener.propertyChange(new PropertyChangeEvent(this, MeetingTimer.TimerChange, _timeLeft, millisUntilFinished));
+		_listener.propertyChange(new PropertyChangeEvent(this, Integer.toString(R.string.Value_TimerUpdate), _timeLeft, millisUntilFinished));
 		_timeLeft = millisUntilFinished;
 	}
 }

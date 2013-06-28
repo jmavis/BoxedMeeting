@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Start">Start</string>
+    <string name="Stop">Stop</string>
+    <string name="Value_TimerUpdate">Value_TimerUpdate</string>
+    <string name="Value_TimerFinished">Value_TimerFinished</string>
+    
+</resources>

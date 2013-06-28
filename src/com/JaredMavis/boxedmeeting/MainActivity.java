@@ -3,23 +3,31 @@ package com.JaredMavis.boxedmeeting;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.TimeUnit;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
 	private String TAG = "MainActivity";
 	
-	EditText _timeDisplay;
+	TextView _timeDisplay;
 	Button _startStopButton;
-	MeetingTimer timer;
+	RelativeLayout _backgroundLayout;
+	MeetingTimer _timer;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,37 +39,43 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	
 	private void init(){
 		bindViews();
-		timer = new MeetingTimer(this);
+		_timer = new MeetingTimer(this);
 		
 	}
 	
 	private void bindViews(){
-		_timeDisplay = (EditText) findViewById(R.id.editText1);
-		_startStopButton = (Button) findViewById(R.id.button1);
+		_backgroundLayout = (RelativeLayout) findViewById(R.id.backgroundLayout);
+		_timeDisplay = (TextView) findViewById(R.id.displayText);
+		_timeDisplay.setOnClickListener(this);
+		_startStopButton = (Button) findViewById(R.id.startStopButton);
 		_startStopButton.setOnClickListener(this);
 	}
 
 	public void propertyChange(PropertyChangeEvent event) {
 		Log.d(TAG, event.getPropertyName());
-		if (event.getPropertyName().equals(MeetingTimer.TimerChange)){
+		if (event.getPropertyName().equals(Integer.toString(R.string.Value_TimerUpdate))){
 			updateDisplay((Long) event.getNewValue());
-		} else if (event.getPropertyName().equals(MeetingTimer.TimerFinish)){
-			
+		} else if (event.getPropertyName().equals(Integer.toString(R.string.Value_TimerFinished))){
+			onFinish();
 		}
 	}
 	
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()){
-			case R.id.button1: {
+			case R.id.startStopButton: {
 				onButtonClick();
+				break;
+			}
+			case R.id.displayText:{
+				onDisplayClick();
 				break;
 			}
 		}
 	}
 	
 	private void onButtonClick(){
-		if (timer.isRunning()){
+		if (_timer.isRunning()){
 			onStopClick();
 		} else {
 			onStartClick();
@@ -69,11 +83,36 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void onStartClick(){
-		timer.start(120000);
+		long time = Long.decode(_timeDisplay.getText().toString());
+		time *= 1000 * 60; // the user enters minutes so change to seconds
+		_timer.start(10000);
+	}
+	
+	private void onDisplayClick(){
+		Log.d(TAG, "onDisplayClick()");
+		popUpTimeInput();
+	}
+	
+	private void popUpTimeInput(){
+		final AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
+	    helpBuilder.setTitle("");
+
+	    LayoutInflater inflater = getLayoutInflater();
+	    final View checkboxLayout = inflater.inflate(R.layout.timer_set_dialog, null);
+	    helpBuilder.setView(checkboxLayout);
+
+	    final AlertDialog helpDialog = helpBuilder.create();
+	    helpDialog.show();
 	}
 	
 	private void onStopClick(){
-		timer.stop();
+		_startStopButton.setText(Integer.toString(R.string.Start));
+		_timer.stop();
+	}
+	
+	private void onFinish(){
+		_startStopButton.setText(Integer.toString(R.string.Stop));
+		_timer.stop();
 	}
 	
 	private void updateDisplay(long timeLeft){
@@ -91,7 +130,4 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
-	
-
 }
