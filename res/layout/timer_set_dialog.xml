@@ -17,15 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
-    </com.JaredMavis.boxedmeeting.NumberPicker>
-    
-    <com.JaredMavis.boxedmeeting.NumberPicker
-        android:id="@+id/numberPicker1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" >
     </com.JaredMavis.boxedmeeting.NumberPicker>
 
 </RelativeLayout>

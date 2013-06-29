@@ -2,6 +2,7 @@ package com.JaredMavis.MeetingTimer;
 
 import java.beans.PropertyChangeListener;
 
+import android.content.Context;
 import android.util.Log;
 
 // Will hold the time left in the countdown and will notify when the data changes
@@ -13,16 +14,18 @@ public class MeetingTimer {
 	private Boolean isRunning;
 	MeetingCountDownTimer _timer;
 	PropertyChangeListener _listener;
+	Context _context;
 
-	public MeetingTimer(PropertyChangeListener listener) {
+	public MeetingTimer(Context context, PropertyChangeListener listener) {
 		_listener = listener;
 		isRunning = false;
+		_context = context;
 	}
 
 	public void start(long timeToRun){
 		Log.d(TAG, "start(" + Long.toString(timeToRun) + ")");
 		isRunning = true;
-		_timer = new MeetingCountDownTimer(_listener, timeToRun, updateInterval);
+		_timer = new MeetingCountDownTimer(_context, _listener, timeToRun, updateInterval);
 		_timer.start();
 	}
 	

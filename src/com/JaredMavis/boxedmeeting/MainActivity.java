@@ -6,8 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.net.Uri;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,18 +15,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
 	private String TAG = "MainActivity";
+	private int STARTTIME = 15;
 	
 	TextView _timeDisplay;
 	Button _startStopButton;
 	RelativeLayout _backgroundLayout;
 	MeetingTimer _timer;
+	int _meetingTime;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +39,9 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	
 	private void init(){
 		bindViews();
-		_timer = new MeetingTimer(this);
-		
+		_timer = new MeetingTimer(getBaseContext(), this);
+		_meetingTime = STARTTIME;
+		updateDisplayToCurrent();
 	}
 	
 	private void bindViews(){
@@ -53,9 +54,9 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 
 	public void propertyChange(PropertyChangeEvent event) {
 		Log.d(TAG, event.getPropertyName());
-		if (event.getPropertyName().equals(Integer.toString(R.string.Value_TimerUpdate))){
+		if (event.getPropertyName().equals(this.getString(R.string.Value_TimerUpdate))){
 			updateDisplay((Long) event.getNewValue());
-		} else if (event.getPropertyName().equals(Integer.toString(R.string.Value_TimerFinished))){
+		} else if (event.getPropertyName().equals(this.getString(R.string.Value_TimerFinished))){
 			onFinish();
 		}
 	}
@@ -83,9 +84,13 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void onStartClick(){
-		long time = Long.decode(_timeDisplay.getText().toString());
-		time *= 1000 * 60; // the user enters minutes so change to seconds
-		_timer.start(10000);
+		_startStopButton.setText(this.getString(R.string.Stop));
+		_timer.start(getMeetingTimeInMillis());
+	}
+	
+	private void onStopClick(){
+		_startStopButton.setText(this.getString(R.string.Start));
+		_timer.stop();
 	}
 	
 	private void onDisplayClick(){
@@ -94,29 +99,41 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void popUpTimeInput(){
-		final AlertDialog.Builder helpBuilder = new AlertDialog.Builder(this);
-	    helpBuilder.setTitle("");
+		final Dialog timePickerDialog = new Dialog(this);
+		timePickerDialog.setTitle("");
+		timePickerDialog.setContentView(R.layout.timer_set_dialog);
 
-	    LayoutInflater inflater = getLayoutInflater();
-	    final View checkboxLayout = inflater.inflate(R.layout.timer_set_dialog, null);
-	    helpBuilder.setView(checkboxLayout);
+	    final NumberPicker numberPicker = (NumberPicker) timePickerDialog.findViewById(R.id.numberPicker1);
+	    
+	    Button acceptButton = (Button) timePickerDialog.findViewById(R.id.acceptButton);
+	    acceptButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				_meetingTime = numberPicker.getCurrent();
+				updateDisplayToCurrent();
+				timePickerDialog.hide();
+			}
+		});
+	    
+	    timePickerDialog.show();
+	}
 
-	    final AlertDialog helpDialog = helpBuilder.create();
-	    helpDialog.show();
-	}
-	
-	private void onStopClick(){
-		_startStopButton.setText(Integer.toString(R.string.Start));
-		_timer.stop();
-	}
 	
 	private void onFinish(){
-		_startStopButton.setText(Integer.toString(R.string.Stop));
+		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
+	}
+	
+	private long getMeetingTimeInMillis(){
+		return (_meetingTime * 1000 * 60);
+	}
+	
+	private void updateDisplayToCurrent(){
+		updateDisplay(getMeetingTimeInMillis());
 	}
 	
 	private void updateDisplay(long timeLeft){
-		String text = String.format("%d:%d",
+		String text = String.format("%d:%02d",
 			   TimeUnit.MILLISECONDS.toMinutes(timeLeft),
 			   TimeUnit.MILLISECONDS.toSeconds(timeLeft) -
 			   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeLeft))
