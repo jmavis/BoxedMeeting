@@ -104,6 +104,9 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		timePickerDialog.setContentView(R.layout.timer_set_dialog);
 
 	    final NumberPicker numberPicker = (NumberPicker) timePickerDialog.findViewById(R.id.numberPicker1);
+	    numberPicker.setRange(1, 60);
+	    numberPicker.setCurrent(_meetingTime);
+
 	    
 	    Button acceptButton = (Button) timePickerDialog.findViewById(R.id.acceptButton);
 	    acceptButton.setOnClickListener(new OnClickListener() {
