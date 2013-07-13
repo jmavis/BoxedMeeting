@@ -5,29 +5,24 @@ import java.beans.PropertyChangeListener;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
 	private String TAG = "MainActivity";
 	private int STARTTIME = 15;
 	
-	TextView _timeDisplay;
-	Button _startStopButton;
-	RelativeLayout _backgroundLayout;
-	MeetingTimer _timer;
-	int _meetingTime;
+	private TextView _timeDisplay;
+	private Button _startStopButton;
+	private MeetingTimer _timer;
+	private int _meetingTime;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +40,6 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void bindViews(){
-		_backgroundLayout = (RelativeLayout) findViewById(R.id.backgroundLayout);
 		_timeDisplay = (TextView) findViewById(R.id.displayText);
 		_timeDisplay.setOnClickListener(this);
 		_startStopButton = (Button) findViewById(R.id.startStopButton);
