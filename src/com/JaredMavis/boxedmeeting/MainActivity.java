@@ -6,13 +6,16 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
@@ -23,6 +26,11 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	private Button _startStopButton;
 	private MeetingTimer _timer;
 	private int _meetingTime;
+	private long _warningNotificationTime = 5 * 60 * 1000; // the time when a quick warning buzz should be given
+	private boolean _hasGaveWarning = false;
+	private Vibrator _vibrator;
+	private long[] meetingEndVibrationPattern = {0, 200, 200,200};
+	private long[] meetingWarningNotificationPattern = {0,200,200};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +45,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
 		updateDisplayToCurrent();
+		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 	}
 	
 	private void bindViews(){
@@ -49,7 +58,12 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	public void propertyChange(PropertyChangeEvent event) {
 		Log.d(TAG, event.getPropertyName());
 		if (event.getPropertyName().equals(this.getString(R.string.Value_TimerUpdate))){
-			updateDisplay((Long) event.getNewValue());
+			long newTime = (Long) event.getNewValue();
+			updateDisplay(newTime);
+			if (!_hasGaveWarning && newTime <= _warningNotificationTime){
+				_vibrator.vibrate(meetingWarningNotificationPattern, -1);
+				_hasGaveWarning = true;
+			}
 		} else if (event.getPropertyName().equals(this.getString(R.string.Value_TimerFinished))){
 			onFinish();
 		}
@@ -117,8 +131,10 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 
 	
 	private void onFinish(){
+		updateDisplay(0);
 		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
+		_vibrator.vibrate(meetingEndVibrationPattern, -1);
 	}
 	
 	private long getMeetingTimeInMillis(){
@@ -130,7 +146,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void updateDisplay(long timeLeft){
-		String text = String.format("%d:%02d",
+		String text = String.format("02%d:%02d",
 			   TimeUnit.MILLISECONDS.toMinutes(timeLeft),
 			   TimeUnit.MILLISECONDS.toSeconds(timeLeft) -
 			   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeLeft))
