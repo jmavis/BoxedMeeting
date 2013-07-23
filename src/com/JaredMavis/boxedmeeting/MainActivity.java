@@ -2,10 +2,9 @@ package com.JaredMavis.boxedmeeting;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.concurrent.TimeUnit;
+import java.util.Formatter;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -14,7 +13,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
@@ -22,8 +20,8 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	private String TAG = "MainActivity";
 	private int STARTTIME = 15;
 	
-	private TextView _timeDisplay;
 	private Button _startStopButton;
+	private TimerDisplay _display;
 	private MeetingTimer _timer;
 	private int _meetingTime;
 	private long _warningNotificationTime = 5 * 60 * 1000; // the time when a quick warning buzz should be given
@@ -44,13 +42,14 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		bindViews();
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
-		updateDisplayToCurrent();
+		_display.setCurrent(_meetingTime);
+		_display.SetButtonSize(getWindowManager().getDefaultDisplay(), .65, .1);
+		_display.SetTextDisplaySize(getWindowManager().getDefaultDisplay(), .65, .20);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 	}
 	
 	private void bindViews(){
-		_timeDisplay = (TextView) findViewById(R.id.displayText);
-		_timeDisplay.setOnClickListener(this);
+		_display = (TimerDisplay) findViewById(R.id.timerDisplay);
 		_startStopButton = (Button) findViewById(R.id.startStopButton);
 		_startStopButton.setOnClickListener(this);
 	}
@@ -76,10 +75,6 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 				onButtonClick();
 				break;
 			}
-			case R.id.displayText:{
-				onDisplayClick();
-				break;
-			}
 		}
 	}
 	
@@ -94,41 +89,15 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	private void onStartClick(){
 		_startStopButton.setText(this.getString(R.string.Stop));
 		_timer.start(getMeetingTimeInMillis());
+		updateDisplayToCurrent();
+		_display.LockDisplay();
 	}
 	
 	private void onStopClick(){
 		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
+		_display.UnLockDisplay();
 	}
-	
-	private void onDisplayClick(){
-		Log.d(TAG, "onDisplayClick()");
-		popUpTimeInput();
-	}
-	
-	private void popUpTimeInput(){
-		final Dialog timePickerDialog = new Dialog(this);
-		timePickerDialog.setTitle("");
-		timePickerDialog.setContentView(R.layout.timer_set_dialog);
-
-	    final NumberPicker numberPicker = (NumberPicker) timePickerDialog.findViewById(R.id.numberPicker1);
-	    numberPicker.setRange(1, 60);
-	    numberPicker.setCurrent(_meetingTime);
-
-	    
-	    Button acceptButton = (Button) timePickerDialog.findViewById(R.id.acceptButton);
-	    acceptButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				_meetingTime = numberPicker.getCurrent();
-				updateDisplayToCurrent();
-				timePickerDialog.hide();
-			}
-		});
-	    
-	    timePickerDialog.show();
-	}
-
 	
 	private void onFinish(){
 		updateDisplay(0);
@@ -138,7 +107,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private long getMeetingTimeInMillis(){
-		return (_meetingTime * 1000 * 60);
+		return (_display.getCurrent() * 1000 * 60);
 	}
 	
 	private void updateDisplayToCurrent(){
@@ -146,12 +115,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	}
 	
 	private void updateDisplay(long timeLeft){
-		String text = String.format("02%d:%02d",
-			   TimeUnit.MILLISECONDS.toMinutes(timeLeft),
-			   TimeUnit.MILLISECONDS.toSeconds(timeLeft) -
-			   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeLeft))
-			);
-		_timeDisplay.setText(text);
+		_display.UpdateDisplay(timeLeft);
 	}
 	
 	@Override

@@ -28,7 +28,7 @@ import android.widget.ImageButton;
  */
 public class NumberPickerButton extends ImageButton {
 
-    private NumberPicker mNumberPicker;
+    private TimerDisplay mNumberPicker;
     
     public NumberPickerButton(Context context, AttributeSet attrs,
             int defStyle) {
@@ -43,7 +43,7 @@ public class NumberPickerButton extends ImageButton {
         super(context);
     }
     
-    public void setNumberPicker(NumberPicker picker) {
+    public void setNumberPicker(TimerDisplay picker) {
         mNumberPicker = picker;
     }
     
