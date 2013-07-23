@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+		<PreferenceCategory android:title="Settings">
+				<CheckBoxPreference
+						android:title="5 minute warning"
+						android:defaultValue="true"
+						android:summary="Choose if you want to be notified at the 5 minute left mark"
+						android:key="checkboxNotify" />
+
+				<ListPreference
+						android:title="Max Meeting Time"
+						android:summary="Choose the maximum meeting time available"
+						android:key="maxMeetingTime"
+						android:defaultValue="60"
+						android:entries="@array/listMaxTime"
+						android:entryValues="@array/listMaxTimeValues" />
+				
+				<Preference
+						android:title="Save and Return"
+						android:summary=""
+						android:key="saveAndReturn" />
+		</PreferenceCategory>
+</PreferenceScreen>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+		<string-array name="listMaxTime">
+				<item name="30">30 minutes</item>
+				<item name="60">60 minutes</item>
+				<item name="90">90 minutes</item>
+		</string-array>
+		
+		<string-array name="listMaxTimeValues">
+				<item name="30">30</item>
+				<item name="60">60</item>
+				<item name="90">90</item>
+		</string-array>
+</resources>

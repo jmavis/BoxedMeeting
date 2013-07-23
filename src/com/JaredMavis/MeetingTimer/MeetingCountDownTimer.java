@@ -25,13 +25,13 @@ public class MeetingCountDownTimer extends CountDownTimer{
 
 	@Override
 	public void onFinish() {
-		Log.d(TAG, "onFinish()");
+		//Log.d(TAG, "onFinish()");
 		_listener.propertyChange(new PropertyChangeEvent(this, _context.getString(R.string.Value_TimerFinished), 0, _timeLeft));
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
+		//Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
 		_listener.propertyChange(new PropertyChangeEvent(this, _context.getString(R.string.Value_TimerUpdate), _timeLeft, millisUntilFinished));
 		_timeLeft = millisUntilFinished;
 	}

@@ -2,14 +2,18 @@ package com.JaredMavis.boxedmeeting;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Formatter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,6 +23,8 @@ import com.JaredMavis.MeetingTimer.MeetingTimer;
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
 	private String TAG = "MainActivity";
 	private int STARTTIME = 15;
+	private int PREFERENCESCREENREQUESTCODE = 1;
+	private boolean SHOULDNOTIFYFIVEMINS;
 	
 	private Button _startStopButton;
 	private TimerDisplay _display;
@@ -45,7 +51,9 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_display.setCurrent(_meetingTime);
 		_display.SetSize(getWindowManager().getDefaultDisplay(), .65, .1, .2);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-	}
+		
+		loadPreferences();
+    }
 	
 	private void bindViews(){
 		_display = (TimerDisplay) findViewById(R.id.timerDisplay);
@@ -58,7 +66,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		if (event.getPropertyName().equals(this.getString(R.string.Value_TimerUpdate))){
 			long newTime = (Long) event.getNewValue();
 			updateDisplay(newTime);
-			if (!_hasGaveWarning && newTime <= _warningNotificationTime && _meetingTime >= 5){
+			if (SHOULDNOTIFYFIVEMINS && !_hasGaveWarning && newTime <= _warningNotificationTime && _meetingTime >= 5){
 				_vibrator.vibrate(meetingWarningNotificationPattern, -1);
 				_hasGaveWarning = true;
 			}
@@ -118,10 +126,41 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_display.UpdateDisplay(timeLeft);
 	}
 	
+	private void loadPreferences(){
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		
+        int maxTime = Integer.parseInt((sharedPrefs.getString("maxMeetingTime", "60")));
+        _display.setMaxTime(maxTime);
+        SHOULDNOTIFYFIVEMINS = sharedPrefs.getBoolean("checkboxNotify", true);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.options:
+			// Go to options page
+			Intent myIntent = new Intent(getBaseContext(), PreferenceHandler.class);
+
+			startActivityForResult(myIntent, PREFERENCESCREENREQUESTCODE);
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == PREFERENCESCREENREQUESTCODE) {
+	        if (resultCode == RESULT_OK) {
+	        	loadPreferences();
+	        }
+	    }
 	}
 }

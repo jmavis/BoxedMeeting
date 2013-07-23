@@ -23,14 +23,14 @@ public class MeetingTimer {
 	}
 
 	public void start(long timeToRun){
-		Log.d(TAG, "start(" + Long.toString(timeToRun) + ")");
+		//Log.d(TAG, "start(" + Long.toString(timeToRun) + ")");
 		isRunning = true;
 		_timer = new MeetingCountDownTimer(_context, _listener, timeToRun, updateInterval);
 		_timer.start();
 	}
 	
 	public void stop(){
-		Log.d(TAG, "start()");
+		//Log.d(TAG, "start()");
 		isRunning = false;
 		_timer.cancel();
 	}
