@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		if (event.getPropertyName().equals(this.getString(R.string.Value_TimerUpdate))){
 			long newTime = (Long) event.getNewValue();
 			updateDisplay(newTime);
-			if (!_hasGaveWarning && newTime <= _warningNotificationTime){
+			if (!_hasGaveWarning && newTime <= _warningNotificationTime && _meetingTime >= 5){
 				_vibrator.vibrate(meetingWarningNotificationPattern, -1);
 				_hasGaveWarning = true;
 			}
@@ -104,6 +104,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
 		_vibrator.vibrate(meetingEndVibrationPattern, -1);
+		_display.UnLockDisplay();
 	}
 	
 	private long getMeetingTimeInMillis(){
