@@ -43,8 +43,7 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
 		_display.setCurrent(_meetingTime);
-		_display.SetButtonSize(getWindowManager().getDefaultDisplay(), .65, .1);
-		_display.SetTextDisplaySize(getWindowManager().getDefaultDisplay(), .65, .20);
+		_display.SetSize(getWindowManager().getDefaultDisplay(), .65, .1, .2);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 	}
 	
