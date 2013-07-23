@@ -2,7 +2,6 @@ package com.JaredMavis.boxedmeeting;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,12 +10,16 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
@@ -49,8 +52,13 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
 		_display.setCurrent(_meetingTime);
-		_display.SetSize(getWindowManager().getDefaultDisplay(), .65, .1, .2);
+		Display screenDisplay = getWindowManager().getDefaultDisplay();
+		_display.SetSize(screenDisplay, .75, .1, .25);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		
+		int buttonwidth = (int) (screenDisplay.getWidth() * .65);
+        
+		_startStopButton.setWidth(buttonwidth);
 		
 		loadPreferences();
     }

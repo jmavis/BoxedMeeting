@@ -18,15 +18,6 @@
         ads:testDevices="304D19770A19C58E" >
     </com.google.ads.AdView>
 
-    <Button
-        android:id="@+id/startStopButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/ad"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="118dp"
-        android:text="@string/Start" />
-
     <com.JaredMavis.boxedmeeting.TimerDisplay
         android:id="@+id/timerDisplay"
         android:layout_width="wrap_content"
@@ -35,5 +26,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp" >
     </com.JaredMavis.boxedmeeting.TimerDisplay>
+
+    <Button
+        android:id="@+id/startStopButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ad"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="70dp"
+        android:text="@string/Start" />
 
 </RelativeLayout>
