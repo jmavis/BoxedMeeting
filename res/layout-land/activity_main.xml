@@ -1,37 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="center_horizontal"
     android:background="@drawable/boxed_meeting_background"
     android:orientation="vertical" >
 
     <com.JaredMavis.boxedmeeting.TimerDisplay
         android:id="@+id/timerDisplay"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp" 
-        android:gravity="center_horizontal">
+        android:layout_above="@+id/startStopButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp" >
     </com.JaredMavis.boxedmeeting.TimerDisplay>
 
     <Button
         android:id="@+id/startStopButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/ad"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="70dp"
-        android:gravity="center_horizontal"
         android:text="@string/Start" />
 
     <com.google.ads.AdView
         android:id="@+id/ad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         ads:adSize="BANNER"
         ads:adUnitId="a151e07fa6b63fe"
         ads:loadAdOnCreate="true"
-        ads:testDevices="304D19770A19C58E"
-        android:gravity="center_horizontal" >
+        ads:testDevices="304D19770A19C58E" >
     </com.google.ads.AdView>
 
-</LinearLayout>
+</RelativeLayout>

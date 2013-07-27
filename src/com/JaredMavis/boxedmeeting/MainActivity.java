@@ -2,10 +2,12 @@ package com.JaredMavis.boxedmeeting;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -17,12 +19,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
 
+/**
+ * Main activity for app
+ * Will handle the start a stop button being called and will initialize the timer and display
+ * 
+ * @author Jared Mavis
+ *
+ */
 public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
 	private String TAG = "MainActivity";
 	private int STARTTIME = 15;
@@ -52,17 +58,21 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
 		_display.setCurrent(_meetingTime);
-		Display screenDisplay = getWindowManager().getDefaultDisplay();
-		_display.SetSize(screenDisplay, .75, .1, .25);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		
+		resizeViews();
+		loadPreferences();
+    }
+	
+	private void resizeViews(){
+		Display screenDisplay = getWindowManager().getDefaultDisplay();
+		//_display.SetSize(screenDisplay, .75, .1, .25);
 		
 		int buttonwidth = (int) (screenDisplay.getWidth() * .65);
         
 		_startStopButton.setWidth(buttonwidth);
-		
-		loadPreferences();
-    }
-	
+	}
+
 	private void bindViews(){
 		_display = (TimerDisplay) findViewById(R.id.timerDisplay);
 		_startStopButton = (Button) findViewById(R.id.startStopButton);
