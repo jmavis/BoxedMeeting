@@ -1,37 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="center_horizontal"
-    android:background="@drawable/boxed_meeting_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical" >
-
-    <com.JaredMavis.boxedmeeting.TimerDisplay
-        android:id="@+id/timerDisplay"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp" 
-        android:gravity="center_horizontal">
-    </com.JaredMavis.boxedmeeting.TimerDisplay>
-
-    <Button
-        android:id="@+id/startStopButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="70dp"
-        android:gravity="center_horizontal"
-        android:text="@string/Start" />
 
     <com.google.ads.AdView
         android:id="@+id/ad"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        ads:adSize="BANNER"
+        ads:adSize="SMART_BANNER"
         ads:adUnitId="a151e07fa6b63fe"
         ads:loadAdOnCreate="true"
         ads:testDevices="304D19770A19C58E"
         android:gravity="center_horizontal" >
     </com.google.ads.AdView>
+
+    <FrameLayout
+        android:id="@+id/rootLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/boxed_meeting_background" >
+
+        <RelativeLayout
+            android:id="@+id/contents"
+            android:layout_width="1000px"
+            android:layout_height="1000px"
+            android:layout_gravity="center"
+            android:orientation="vertical" >
+
+            <com.JaredMavis.boxedmeeting.TimerDisplay
+                android:id="@+id/timerDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:gravity="center_horizontal" >
+            </com.JaredMavis.boxedmeeting.TimerDisplay>
+
+            <Button
+                android:id="@+id/startStopButton"
+                style="@style/button"
+                android:layout_width="700px"
+                android:layout_height="200px"
+                android:layout_below="@+id/timerDisplay"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:tag="@style/button"
+                android:text="@string/Start" />
+
+        </RelativeLayout>
+    </FrameLayout>
 
 </LinearLayout>

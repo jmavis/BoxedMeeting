@@ -1,4 +1,8 @@
-package com.JaredMavis.boxedmeeting;
+package com.JaredMavis.Utils;
+
+import com.JaredMavis.boxedmeeting.MainActivity;
+import com.JaredMavis.boxedmeeting.R;
+import com.JaredMavis.boxedmeeting.R.xml;
 
 import android.content.Intent;
 import android.os.Bundle;

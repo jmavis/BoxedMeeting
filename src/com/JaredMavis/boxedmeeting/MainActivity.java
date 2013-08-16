@@ -7,20 +7,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.JaredMavis.MeetingTimer.MeetingTimer;
+import com.JaredMavis.Utils.PreferenceHandler;
+import com.JaredMavis.Utils.ViewScaler;
 
 /**
  * Main activity for app
@@ -34,15 +36,20 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 	private int STARTTIME = 15;
 	private int PREFERENCESCREENREQUESTCODE = 1;
 	private boolean SHOULDNOTIFYFIVEMINS;
+	private static boolean hasScaled = false;
 	
 	private Button _startStopButton;
 	private TimerDisplay _display;
 	private MeetingTimer _timer;
+	private FrameLayout _rootLayout;
+	private RelativeLayout _scalingContents;
+	
+	
 	private int _meetingTime;
 	private long _warningNotificationTime = 5 * 60 * 1000; // the time when a quick warning buzz should be given
 	private boolean _hasGaveWarning = false;
 	private Vibrator _vibrator;
-	private long[] meetingEndVibrationPattern = {0, 200, 200,200};
+	private long[] meetingEndVibrationPattern = {0,200,200,200};
 	private long[] meetingWarningNotificationPattern = {0,200,200};
 	
 	@Override
@@ -53,30 +60,32 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		init();
 	}
 	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		Log.d(TAG, "Window focus change");
+		if (!hasScaled){
+			ViewScaler.scaleContents(_scalingContents, _rootLayout);
+			hasScaled = true;
+		}
+	}
+
 	private void init(){
 		bindViews();
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_meetingTime = STARTTIME;
 		_display.setCurrent(_meetingTime);
 		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		
-		resizeViews();
+		hasScaled = false;
 		loadPreferences();
     }
-	
-	private void resizeViews(){
-		Display screenDisplay = getWindowManager().getDefaultDisplay();
-		//_display.SetSize(screenDisplay, .75, .1, .25);
-		
-		int buttonwidth = (int) (screenDisplay.getWidth() * .65);
-        
-		_startStopButton.setWidth(buttonwidth);
-	}
 
 	private void bindViews(){
 		_display = (TimerDisplay) findViewById(R.id.timerDisplay);
 		_startStopButton = (Button) findViewById(R.id.startStopButton);
 		_startStopButton.setOnClickListener(this);
+		_rootLayout = (FrameLayout) findViewById(R.id.rootLayout);
+		_scalingContents = (RelativeLayout) findViewById(R.id.contents);
 	}
 
 	public void propertyChange(PropertyChangeEvent event) {
