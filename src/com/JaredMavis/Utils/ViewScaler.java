@@ -3,11 +3,8 @@ package com.JaredMavis.Utils;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class ViewScaler {
@@ -87,7 +84,7 @@ public class ViewScaler {
         while (currentTextRect.width() + minimumThreshold < targetSize && currentTextRect.height() + minimumThreshold < targetSize){
         	if (currentTextRect.width() > targetSize || currentTextRect.height() > targetSize){
         		textSize /= scalingAmount;
-        		scalingAmount /= 2;
+        		scalingAmount /= 5;
         	}
         	textSize *= scalingAmount;
         	mTestPaint.setTextSize(textSize);

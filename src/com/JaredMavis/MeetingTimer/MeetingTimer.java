@@ -21,6 +21,10 @@ public class MeetingTimer {
 		isRunning = false;
 		_context = context;
 	}
+	
+	public long getMillisLeft(){
+		return (_timer.getMillisLeft());
+	}
 
 	public void start(long timeToRun){
 		//Log.d(TAG, "start(" + Long.toString(timeToRun) + ")");
@@ -30,7 +34,7 @@ public class MeetingTimer {
 	}
 	
 	public void stop(){
-		//Log.d(TAG, "start()");
+		Log.d(TAG, "stop()");
 		isRunning = false;
 		_timer.cancel();
 	}

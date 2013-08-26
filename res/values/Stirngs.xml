@@ -4,5 +4,8 @@
     <string name="Stop">Stop</string>
     <string name="Value_TimerUpdate">Value_TimerUpdate</string>
     <string name="Value_TimerFinished">Value_TimerFinished</string>
+    <string name="Value_TimeLeft">TimeLeft</string>
+    <string name="Value_MeetingEndNotificationID">1</string>
+    <string name="Value_Meeting5MinNotificationID">2</string>
     
 </resources>

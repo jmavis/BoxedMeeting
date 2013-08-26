@@ -14,13 +14,17 @@ public class MeetingCountDownTimer extends CountDownTimer{
 	
 	PropertyChangeListener _listener;
 	Context _context;
-	long _timeLeft;
+	long _timeLeft; // in ms
 	
 	public MeetingCountDownTimer(Context context, PropertyChangeListener listener, long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
 		_listener = listener; 
 		_timeLeft = millisInFuture;
 		_context = context;
+	}
+	
+	public long getMillisLeft(){
+		return (_timeLeft);
 	}
 
 	@Override
@@ -31,7 +35,7 @@ public class MeetingCountDownTimer extends CountDownTimer{
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		//Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
+		Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
 		_listener.propertyChange(new PropertyChangeEvent(this, _context.getString(R.string.Value_TimerUpdate), _timeLeft, millisUntilFinished));
 		_timeLeft = millisUntilFinished;
 	}

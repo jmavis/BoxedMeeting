@@ -1,164 +1,161 @@
 package com.JaredMavis.boxedmeeting;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.util.Calendar;
 
-import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.widget.Toast;
 
-import com.JaredMavis.MeetingTimer.MeetingTimer;
+import com.JaredMavis.Utils.AlarmReciever;
+import com.JaredMavis.Utils.NotificationService;
 import com.JaredMavis.Utils.PreferenceHandler;
 import com.JaredMavis.Utils.ViewScaler;
+import com.google.analytics.tracking.android.EasyTracker;
 
 /**
  * Main activity for app
- * Will handle the start a stop button being called and will initialize the timer and display
  * 
  * @author Jared Mavis
- *
  */
-public class MainActivity extends Activity implements PropertyChangeListener, OnClickListener {
+public class MainActivity extends TimerActivity {
 	private String TAG = "MainActivity";
-	private int STARTTIME = 15;
 	private int PREFERENCESCREENREQUESTCODE = 1;
-	private boolean SHOULDNOTIFYFIVEMINS;
-	private static boolean hasScaled = false;
-	
-	private Button _startStopButton;
-	private TimerDisplay _display;
-	private MeetingTimer _timer;
-	private FrameLayout _rootLayout;
-	private RelativeLayout _scalingContents;
-	
-	
-	private int _meetingTime;
-	private long _warningNotificationTime = 5 * 60 * 1000; // the time when a quick warning buzz should be given
-	private boolean _hasGaveWarning = false;
-	private Vibrator _vibrator;
-	private long[] meetingEndVibrationPattern = {0,200,200,200};
-	private long[] meetingWarningNotificationPattern = {0,200,200};
-	
+	private String timeToGoOffKey = "TimeToGoOff";
+	private long timeToGoOffFromLastSession; 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-
-		init();
+		Log.d(TAG, "onCreate");
 	}
 	
+	private int fiveMinutes = 5 * 60 * 1000;
+	private void SetNotifications(long time){
+		Log.d(TAG, "Setting notificaiton for " + time);
+		long timeToGoOff = System.currentTimeMillis() + time;
+		if (time > fiveMinutes && SHOULDNOTIFYFIVEMINS) {
+			//SetNotification("5 Minutes Left", "", timeToGoOff - fiveMinutes, 2);
+		} 
+		SetNotification("Time is up", "Time is up", timeToGoOff, 1);
+	}
+	
+	private void SetNotification(String title, String text, long time, int id) {
+        //---PendingIntent to launch activity when the alarm triggers---
+        Intent i = new Intent(this, AlarmReciever.class);
+
+        //---assign an ID of 1---
+        i.putExtra("NotifID", id);
+        i.putExtra("Title", title); 
+        i.putExtra("Text", text);
+
+        AlarmManager mAlarmManager = (AlarmManager) (this.getSystemService(Context.ALARM_SERVICE));
+        
+	    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, i,0);
+        
+		mAlarmManager.set(AlarmManager.RTC, time, pendingIntent);
+	}
+	
+	// will cancel all alarms with the same pending intent that goes to this app and any notifications that are showing
+	void CancelNotification() {
+		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent i = new Intent(getBaseContext(), NotificationService.class);
+
+        PendingIntent displayIntent = PendingIntent.getActivity(getBaseContext(), 0, i, 0);
+
+		alarmManager.cancel(displayIntent); 
+		
+		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		
+	}
+
+	/*
+	 * When leaving the app we will stop the timer thread and will set alarms to go off at the right time
+	 * @see android.app.Activity#onPause()
+	 */
+	@Override
+	public void onPause(){
+		super.onPause();
+		Log.d(TAG, "on pause");
+		if (_timer.isRunning()){
+			long timeToGoOff = System.currentTimeMillis() + _timer.getMillisLeft();
+			SetNotifications(_timer.getMillisLeft());
+			markTimeLeftApp(timeToGoOff);
+			_timer.stop();	
+		}
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadPreferences();
+		Log.d(TAG, "resuming. time from last session = " + timeToGoOffFromLastSession);
+		if (timeToGoOffFromLastSession != -1){
+			UpdateTimerToLastSessionTime(timeToGoOffFromLastSession);
+		}
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
+	}
+
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		Log.d(TAG, "Window focus change");
-		if (!hasScaled){
+		if (!hasScaled) {
 			ViewScaler.scaleContents(_scalingContents, _rootLayout);
 			hasScaled = true;
 		}
 	}
 
-	private void init(){
-		bindViews();
-		_timer = new MeetingTimer(getBaseContext(), this);
-		_meetingTime = STARTTIME;
-		_display.setCurrent(_meetingTime);
-		_vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		hasScaled = false;
-		loadPreferences();
-    }
-
-	private void bindViews(){
-		_display = (TimerDisplay) findViewById(R.id.timerDisplay);
-		_startStopButton = (Button) findViewById(R.id.startStopButton);
-		_startStopButton.setOnClickListener(this);
-		_rootLayout = (FrameLayout) findViewById(R.id.rootLayout);
-		_scalingContents = (RelativeLayout) findViewById(R.id.contents);
-	}
-
-	public void propertyChange(PropertyChangeEvent event) {
-		Log.d(TAG, event.getPropertyName());
-		if (event.getPropertyName().equals(this.getString(R.string.Value_TimerUpdate))){
-			long newTime = (Long) event.getNewValue();
-			updateDisplay(newTime);
-			if (SHOULDNOTIFYFIVEMINS && !_hasGaveWarning && newTime <= _warningNotificationTime && _meetingTime >= 5){
-				_vibrator.vibrate(meetingWarningNotificationPattern, -1);
-				_hasGaveWarning = true;
-			}
-		} else if (event.getPropertyName().equals(this.getString(R.string.Value_TimerFinished))){
-			onFinish();
-		}
-	}
-	
-	@Override
-	public void onClick(View view) {
-		switch (view.getId()){
-			case R.id.startStopButton: {
-				onButtonClick();
-				break;
-			}
-		}
-	}
-	
-	private void onButtonClick(){
-		if (_timer.isRunning()){
-			onStopClick();
-		} else {
-			onStartClick();
-		}
-	}
-	
-	private void onStartClick(){
-		_startStopButton.setText(this.getString(R.string.Stop));
-		_timer.start(getMeetingTimeInMillis());
-		updateDisplayToCurrent();
-		_display.LockDisplay();
-	}
-	
-	private void onStopClick(){
-		_startStopButton.setText(this.getString(R.string.Start));
-		_timer.stop();
-		_display.UnLockDisplay();
-	}
-	
-	private void onFinish(){
-		updateDisplay(0);
-		_startStopButton.setText(this.getString(R.string.Start));
-		_timer.stop();
-		_vibrator.vibrate(meetingEndVibrationPattern, -1);
-		_display.UnLockDisplay();
-	}
-	
-	private long getMeetingTimeInMillis(){
-		return (_display.getCurrent() * 1000 * 60);
-	}
-	
-	private void updateDisplayToCurrent(){
-		updateDisplay(getMeetingTimeInMillis());
-	}
-	
-	private void updateDisplay(long timeLeft){
-		_display.UpdateDisplay(timeLeft);
-	}
-	
-	private void loadPreferences(){
+	private void loadPreferences() {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+		int maxTime = Integer.parseInt((sharedPrefs.getString("maxMeetingTime",
+				"60")));
 		
-        int maxTime = Integer.parseInt((sharedPrefs.getString("maxMeetingTime", "60")));
-        _display.setMaxTime(maxTime);
-        SHOULDNOTIFYFIVEMINS = sharedPrefs.getBoolean("checkboxNotify", true);
+		_display.setMaxTime(maxTime);
+		SHOULDNOTIFYFIVEMINS = sharedPrefs.getBoolean("checkboxNotify", true);
+		timeToGoOffFromLastSession = sharedPrefs.getLong(timeToGoOffKey, -1);
+	}
+	
+	/*
+	 * Will save the time left on the timer when we leave the app
+	 */
+	private void markTimeLeftApp(long timeToGoOff){
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences.Editor editor = sharedPrefs.edit();
+		editor.putLong("TimeToGoOff", timeToGoOff);
+		editor.apply();
+	}
+
+	private void UpdateTimerToLastSessionTime(long timeToGoOff){
+		long currentTime = System.currentTimeMillis();
+		if (currentTime > timeToGoOff) return;
+		int timeLeft = (int) ((timeToGoOff - currentTime) / 1000);
+		Log.d(TAG, "Updaing time to last with time " + timeLeft);
+		_display.setCurrent(timeLeft);
+		_timer.start(getMeetingTimeInMillis());
+		markTimeLeftApp(-1);
 	}
 	
 	@Override
@@ -174,20 +171,21 @@ public class MainActivity extends Activity implements PropertyChangeListener, On
 		switch (item.getItemId()) {
 		case R.id.options:
 			// Go to options page
-			Intent myIntent = new Intent(getBaseContext(), PreferenceHandler.class);
+			Intent myIntent = new Intent(getBaseContext(),
+					PreferenceHandler.class);
 
 			startActivityForResult(myIntent, PREFERENCESCREENREQUESTCODE);
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	    if (requestCode == PREFERENCESCREENREQUESTCODE) {
-	        if (resultCode == RESULT_OK) {
-	        	loadPreferences();
-	        }
-	    }
+		if (requestCode == PREFERENCESCREENREQUESTCODE) {
+			if (resultCode == RESULT_OK) {
+				loadPreferences();
+			}
+		}
 	}
 }

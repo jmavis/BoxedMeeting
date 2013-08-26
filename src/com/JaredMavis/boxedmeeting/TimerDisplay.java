@@ -1,18 +1,17 @@
 package com.JaredMavis.boxedmeeting;
 
 import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
-import android.graphics.Paint;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * This class is based off of google's number picker class
@@ -40,12 +39,13 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         }
     };
 
-    private EditText mText;
+    private TextView mText;
     protected int mStart;
     protected int mEnd;
     protected long msCurrent;
     protected int mCurrent;
     protected int mPrevious;
+    private int startingTime;
     private long mSpeed = 300;
 
     private boolean mIncrement;
@@ -75,9 +75,8 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         mDecrementButton.setOnLongClickListener(this);
         mDecrementButton.setNumberPicker(this);
 
-        mText = (EditText) findViewById(R.id.timepicker_input);
-        mText.setFocusable(false);
-
+        mText = (TextView) findViewById(R.id.timepicker_input);
+        
         mStart = DEFAULT_MIN;
         mEnd = DEFAULT_MAX;
         isCountingDown = false;
@@ -88,7 +87,6 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         super.setEnabled(enabled);
         mIncrementButton.setEnabled(enabled);
         mDecrementButton.setEnabled(enabled);
-        mText.setEnabled(enabled);
     }
 
     public void setCurrent(int current) {
@@ -192,11 +190,13 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
      * UpdateDisplay(timeLef)
      */
     public void LockDisplay(){
+    	startingTime = getCurrent();
     	isCountingDown = true;
     	mIncrementButton.setVisibility(View.INVISIBLE);
     	mDecrementButton.setVisibility(View.INVISIBLE);
     	mIncrementButton.setEnabled(false);
     	mDecrementButton.setEnabled(false);
+    	mText.setEnabled(false);
     }
     
     /**
@@ -204,22 +204,19 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
      */
     public void UnLockDisplay(){
     	isCountingDown = false;
-    	mCurrent = (int) Math.ceil(msCurrent/60/1000); // will truncate any seconds left
+    	mCurrent = startingTime;
     	updateView();
     	mIncrementButton.setVisibility(View.VISIBLE);
     	mDecrementButton.setVisibility(View.VISIBLE);
     	mIncrementButton.setEnabled(true);
     	mDecrementButton.setEnabled(true);
+    	mText.setEnabled(true);
     }
 
     public void UpdateDisplay(long timeLeft){
     	msCurrent = timeLeft;
     	updateView();
     }
-
-
-	
-	
     
     public void setMaxTime(int max){
     	mEnd = max;

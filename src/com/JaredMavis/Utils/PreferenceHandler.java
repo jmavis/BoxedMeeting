@@ -3,6 +3,7 @@ package com.JaredMavis.Utils;
 import com.JaredMavis.boxedmeeting.MainActivity;
 import com.JaredMavis.boxedmeeting.R;
 import com.JaredMavis.boxedmeeting.R.xml;
+import com.google.analytics.tracking.android.EasyTracker;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,13 +25,23 @@ public class PreferenceHandler extends PreferenceActivity {
 					public boolean onPreferenceClick(Preference preference) {
 						Toast.makeText(getBaseContext(), "Your settings have been saved", Toast.LENGTH_LONG).show();
 						
-						Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
-
-						startActivity(myIntent);
+						finish();
 						return true;
 					}
 
 				});
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 
 	/*
