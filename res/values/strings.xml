@@ -4,5 +4,20 @@
     <string name="app_name">BoxedMeeting</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="Start">Start</string>
+    <string name="Stop">Stop</string>
+    <string name="Value_TimerUpdate">Value_TimerUpdate</string>
+    <string name="Value_TimerFinished">Value_TimerFinished</string>
+    <string name="Value_TimeLeft">TimeLeft</string>
+    <string name="Value_MeetingEndNotificationID">1</string>
+    <string name="Value_Meeting5MinNotificationID">2</string>
+    <string name="Value_WarningTimeInMins">5</string>
+    <string-array name="Array_DefaultTimes">
+        <item>5</item>
+        <item>15</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+    </string-array>
 
 </resources>

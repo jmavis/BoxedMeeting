@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.JaredMavis.Utils.AlarmReciever;
 import com.JaredMavis.Utils.NotificationService;
 import com.JaredMavis.Utils.PreferenceHandler;
+import com.JaredMavis.Utils.Utils;
 import com.JaredMavis.Utils.ViewScaler;
 import com.google.analytics.tracking.android.EasyTracker;
 
@@ -32,21 +33,14 @@ public class MainActivity extends TimerActivity {
 	private int PREFERENCESCREENREQUESTCODE = 1;
 	private String timeToGoOffKey = "TimeToGoOff";
 	private long timeToGoOffFromLastSession; 
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Log.d(TAG, "onCreate");
-	}
 	
-	private int fiveMinutes = 5 * 60 * 1000;
 	private void SetNotifications(long time){
-		Log.d(TAG, "Setting notificaiton for " + time);
 		long timeToGoOff = System.currentTimeMillis() + time;
-		if (time > fiveMinutes && SHOULDNOTIFYFIVEMINS) {
-			//SetNotification("5 Minutes Left", "", timeToGoOff - fiveMinutes, 2);
+		if (time > Utils.WaitTime() && SHOULDNOTIFYFIVEMINS) {
+			SetNotification("5 Minutes Left", "", timeToGoOff - Utils.WaitTime(), R.string.Value_Meeting5MinNotificationID);
 		} 
-		SetNotification("Time is up", "Time is up", timeToGoOff, 1);
+		
+		SetNotification("Time is up", "Time is up", timeToGoOff, R.string.Value_MeetingEndNotificationID);
 	}
 	
 	private void SetNotification(String title, String text, long time, int id) {
