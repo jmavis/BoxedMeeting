@@ -1,7 +1,6 @@
 package com.JaredMavis.boxedmeeting;
 
 import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -9,15 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * This class is based off of google's number picker class
+ * It will handle the timer display functionality. Meaning the up and down buttons and updating the center display to 
+ * a correctly formated number
  */
 public class TimerDisplay extends LinearLayout implements OnClickListener, OnLongClickListener {
-    private static final String TAG = "NumberPicker";
+    @SuppressWarnings("unused")
+	private static final String TAG = "NumberPicker";
     private static final int DEFAULT_MAX = 60;
     private static final int DEFAULT_MIN = 1;
     private static final double MAX_MULTIPLE = .45;
@@ -89,6 +90,10 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         mDecrementButton.setEnabled(enabled);
     }
 
+    /**
+     * Will update the current value of the display to the given value in seconds
+     * @param current
+     */
     public void setCurrent(int current) {
         mCurrent = current;
         updateView();

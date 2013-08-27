@@ -3,15 +3,16 @@
 
     <string name="app_name">BoxedMeeting</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="Start">Start</string>
     <string name="Stop">Stop</string>
+    
+    <!-- Timer Identifing Values -->
     <string name="Value_TimerUpdate">Value_TimerUpdate</string>
     <string name="Value_TimerFinished">Value_TimerFinished</string>
     <string name="Value_TimeLeft">TimeLeft</string>
-    <string name="Value_MeetingEndNotificationID">1</string>
-    <string name="Value_Meeting5MinNotificationID">2</string>
-    <string name="Value_WarningTimeInMins">5</string>
+    
+    <!-- Timer Settings -->
+    <string name="Value_TimerUpdateIntervalInMs">1000</string>
     <string-array name="Array_DefaultTimes">
         <item>5</item>
         <item>15</item>
@@ -19,5 +20,32 @@
         <item>45</item>
         <item>60</item>
     </string-array>
-
+    
+    <!-- Notification Settings -->
+    <string name="Value_MeetingEndNotificationID">1</string>
+    <string name="Value_Meeting5MinNotificationID">2</string>
+    <string name="Value_DefultWarningTimeInMins">5</string>
+    
+    <!-- Notification Value Keys -->
+    <string name="Key_NotificaitonID">NotifID</string>
+    <string name="Key_NotificaitionTitle">NotifTitle</string>
+    <string name="Key_NotificaitionText">NotifText</string>
+    
+    <!-- Notificaiton Values -->
+	    <!-- End Notification Values -->
+	    <string name="String_EndNotificationTitle">Time is up</string>
+	    <string name="String_EndNotificationText">Time is up</string>
+	    
+	    <!-- Warning Notificaition Values -->
+	    <string name="String_WarningNotificationTitle">minutes left</string>
+    
+	
+    
+    <string name="Value_PREFERENCESCREENREQUESTCODE">1</string>
+    <string name="Value_DefaultMaxMeetingTimeInMins">60</string>
+    
+    
+    <!-- Preference keys -->
+    <string name="PrefKey_MaxMeetingTime">MaxMeetingTime</string>
+    <string name="PrefKey_TimeToGoOff">TimeToGoOff</string>
 </resources>

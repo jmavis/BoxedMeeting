@@ -1,91 +1,43 @@
 package com.JaredMavis.boxedmeeting;
 
-import java.util.Calendar;
-
-import android.app.AlarmManager;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.JaredMavis.Utils.AlarmReciever;
-import com.JaredMavis.Utils.NotificationService;
+import com.JaredMavis.Notifications.NotificationSender;
 import com.JaredMavis.Utils.PreferenceHandler;
-import com.JaredMavis.Utils.Utils;
 import com.JaredMavis.Utils.ViewScaler;
 import com.google.analytics.tracking.android.EasyTracker;
 
 /**
  * Main activity for app
- * 
+ * Handles the interfacing between the timer and android os. 
  * @author Jared Mavis
  */
 public class MainActivity extends TimerActivity {
 	private String TAG = "MainActivity";
-	private int PREFERENCESCREENREQUESTCODE = 1;
 	private String timeToGoOffKey = "TimeToGoOff";
-	private long timeToGoOffFromLastSession; 
+	private long _timeToGoOffFromLastSession; 
+	private int defaultMeetingTime;
 	
-	private void SetNotifications(long time){
-		long timeToGoOff = System.currentTimeMillis() + time;
-		if (time > Utils.WaitTime() && SHOULDNOTIFYFIVEMINS) {
-			SetNotification("5 Minutes Left", "", timeToGoOff - Utils.WaitTime(), R.string.Value_Meeting5MinNotificationID);
-		} 
-		
-		SetNotification("Time is up", "Time is up", timeToGoOff, R.string.Value_MeetingEndNotificationID);
-	}
-	
-	private void SetNotification(String title, String text, long time, int id) {
-        //---PendingIntent to launch activity when the alarm triggers---
-        Intent i = new Intent(this, AlarmReciever.class);
-
-        //---assign an ID of 1---
-        i.putExtra("NotifID", id);
-        i.putExtra("Title", title); 
-        i.putExtra("Text", text);
-
-        AlarmManager mAlarmManager = (AlarmManager) (this.getSystemService(Context.ALARM_SERVICE));
-        
-	    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, i,0);
-        
-		mAlarmManager.set(AlarmManager.RTC, time, pendingIntent);
-	}
-	
-	// will cancel all alarms with the same pending intent that goes to this app and any notifications that are showing
-	void CancelNotification() {
-		AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        Intent i = new Intent(getBaseContext(), NotificationService.class);
-
-        PendingIntent displayIntent = PendingIntent.getActivity(getBaseContext(), 0, i, 0);
-
-		alarmManager.cancel(displayIntent); 
-		
-		NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		
-	}
-
 	/*
 	 * When leaving the app we will stop the timer thread and will set alarms to go off at the right time
+	 * as we may have our timer thread ended so we cancel and set and alarm for the time ending
 	 * @see android.app.Activity#onPause()
 	 */
 	@Override
 	public void onPause(){
 		super.onPause();
-		Log.d(TAG, "on pause");
 		if (_timer.isRunning()){
 			long timeToGoOff = System.currentTimeMillis() + _timer.getMillisLeft();
-			SetNotifications(_timer.getMillisLeft());
-			markTimeLeftApp(timeToGoOff);
+			NotificationSender.setNotifications(_timer.getMillisLeft(), _shouldNotifyAtWarning, this);
+			markTimeAlarmEnds(timeToGoOff);
 			_timer.stop();	
+		} else {
+			markTimeAlarmEnds(-1); // TODO
 		}
 	}
 	
@@ -93,15 +45,21 @@ public class MainActivity extends TimerActivity {
 	protected void onResume() {
 		super.onResume();
 		loadPreferences();
-		Log.d(TAG, "resuming. time from last session = " + timeToGoOffFromLastSession);
-		if (timeToGoOffFromLastSession != -1){
-			UpdateTimerToLastSessionTime(timeToGoOffFromLastSession);
+		Log.d(TAG, "resuming. time from last session = " + _timeToGoOffFromLastSession);
+		long currentTime = System.currentTimeMillis();
+		if (_timeToGoOffFromLastSession != -1 && _timeToGoOffFromLastSession > currentTime){ //TODO
+			UpdateTimerToLastSessionTime(_timeToGoOffFromLastSession, currentTime);
+			markTimeAlarmEnds(-1);
+		} else {
+			Log.d(TAG, "Setting to default time at " + defaultMeetingTime);
+			_display.setCurrent(defaultMeetingTime);
 		}
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
+		NotificationSender.cancelNotificationsAndAlarms(this);
 		EasyTracker.getInstance().activityStart(this);
 	}
 
@@ -114,42 +72,41 @@ public class MainActivity extends TimerActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		Log.d(TAG, "Window focus change");
-		if (!hasScaled) {
+		if (!_hasScaled) {
 			ViewScaler.scaleContents(_scalingContents, _rootLayout);
-			hasScaled = true;
+			_hasScaled = true;
 		}
 	}
 
 	private void loadPreferences() {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		int maxTime = Integer.parseInt((sharedPrefs.getString("maxMeetingTime",
-				"60")));
+		int maxTime = sharedPrefs.getInt(getResources().getString(R.string.PrefKey_MaxMeetingTime), R.string.Value_DefaultMaxMeetingTimeInMins);
 		
 		_display.setMaxTime(maxTime);
-		SHOULDNOTIFYFIVEMINS = sharedPrefs.getBoolean("checkboxNotify", true);
-		timeToGoOffFromLastSession = sharedPrefs.getLong(timeToGoOffKey, -1);
+		_shouldNotifyAtWarning = sharedPrefs.getBoolean("checkboxNotify", true); //TODO
+		_timeToGoOffFromLastSession = sharedPrefs.getLong(timeToGoOffKey, -1);
+		defaultMeetingTime = sharedPrefs.getInt("defaultMeetingTime", 15);
 	}
 	
-	/*
-	 * Will save the time left on the timer when we leave the app
+	/**
+	 * Will save the time when the alarm should go off
 	 */
-	private void markTimeLeftApp(long timeToGoOff){
-		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+	private void markTimeAlarmEnds(long timeToGoOff){
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
-		editor.putLong("TimeToGoOff", timeToGoOff);
+		editor.putLong(this.getString(R.string.PrefKey_TimeToGoOff), timeToGoOff); 
 		editor.apply();
 	}
 
-	private void UpdateTimerToLastSessionTime(long timeToGoOff){
-		long currentTime = System.currentTimeMillis();
-		if (currentTime > timeToGoOff) return;
-		int timeLeft = (int) ((timeToGoOff - currentTime) / 1000);
-		Log.d(TAG, "Updaing time to last with time " + timeLeft);
-		_display.setCurrent(timeLeft);
-		_timer.start(getMeetingTimeInMillis());
-		markTimeLeftApp(-1);
+	/**
+	 * Will determine the amount of time that we need to finish and will set the time to that
+	 * and start the timer with that time
+	 */
+	private void UpdateTimerToLastSessionTime(long timeToGoOff, long currentTime){
+		long msLeft = timeToGoOff - currentTime;
+		_display.setCurrent((int) (msLeft / 1000));
+		_timer.start(msLeft);
 	}
 	
 	@Override
@@ -161,25 +118,19 @@ public class MainActivity extends TimerActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.options:
-			// Go to options page
-			Intent myIntent = new Intent(getBaseContext(),
-					PreferenceHandler.class);
-
-			startActivityForResult(myIntent, PREFERENCESCREENREQUESTCODE);
-		default:
-			return super.onOptionsItemSelected(item);
+			case R.id.options:
+				Intent myIntent = new Intent(getBaseContext(), PreferenceHandler.class);
+				startActivityForResult(myIntent, R.string.Value_PREFERENCESCREENREQUESTCODE);
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == PREFERENCESCREENREQUESTCODE) {
-			if (resultCode == RESULT_OK) {
-				loadPreferences();
-			}
+		if (requestCode == R.string.Value_PREFERENCESCREENREQUESTCODE && resultCode == RESULT_OK) {
+			loadPreferences();
 		}
 	}
 }

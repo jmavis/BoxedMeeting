@@ -2,7 +2,6 @@ package com.JaredMavis.Utils;
 
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -49,11 +48,9 @@ public class ViewScaler {
 				(int)(root.getPaddingRight() * scale),
 				(int)(root.getPaddingTop() * scale),
 				(int)(root.getPaddingBottom() * scale));
-		Log.d("Scaling", "Scaling of type" + root.getClass());
 		
 		/// scale all text
 		if (root instanceof TextView){
-			Log.d("Scaling", "was a TextView");
 			TextView textView = (TextView)root;
 			refitText(textView);
 		}
@@ -89,14 +86,9 @@ public class ViewScaler {
         	textSize *= scalingAmount;
         	mTestPaint.setTextSize(textSize);
         	mTestPaint.getTextBounds(textView.getText().toString(), 0, textView.getText().length(), currentTextRect);
-        	Log.d("Scaling", "size = " + textSize);
-            Log.d("Scaling", currentTextRect.width() + ", " + currentTextRect.height());
         }
         textSize /= scalingAmount;
-      	Log.d("Scaling", "ending size = " + textSize);
         textView.getPaint().setTextSize(textSize);
         textView.getPaint().getTextBounds(textView.getText().toString(), 0, textView.getText().length(), currentTextRect);
-        Log.d("Scaling", "end size = " + currentTextRect.width() + ", " + currentTextRect.height());
-        Log.d("Scaling", "end width = " + textView.getWidth());
     }
 }

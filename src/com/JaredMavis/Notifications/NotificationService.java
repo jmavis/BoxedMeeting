@@ -1,4 +1,4 @@
-package com.JaredMavis.Utils;
+package com.JaredMavis.Notifications;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,11 +11,14 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.JaredMavis.boxedmeeting.MainActivity;
 import com.JaredMavis.boxedmeeting.R;
 
+/**
+ * Ran when a alarm has gone off. Will create a notification in the background then destroy itself
+ * @author Jared Mavis
+ *
+ */
 public class NotificationService extends Service {
 	private static final String TAG = "NotificationService";
 	private WakeLock mWakeLock;
@@ -56,7 +59,6 @@ public class NotificationService extends Service {
 	private class PollTask extends AsyncTask<Intent, Void, Void> {
 		@Override
 		protected Void doInBackground(Intent... params) {
-			Log.d(TAG, "doing in background");
 			Intent intent = params[0];
 			int notifID = intent.getExtras().getInt("NotifID");
 			String title = intent.getExtras().getString("Title");
@@ -87,12 +89,12 @@ public class NotificationService extends Service {
 		@Override
 		protected void onPostExecute(Void result) {
 			stopSelf();
+			mWakeLock.release();
 		}
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		Log.d(TAG, "on start");
 		handleIntent(intent);
 	}
 
@@ -100,7 +102,6 @@ public class NotificationService extends Service {
 	/** * This is called on 2.0+ (API level 5 or higher). Returning * START_NOT_STICKY tells the system to not restart the service if it is * killed because of poor resource (memory/cpu) conditions. */
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.d(TAG, "on start command");
 		handleIntent(intent);
 		return START_NOT_STICKY;
 	}

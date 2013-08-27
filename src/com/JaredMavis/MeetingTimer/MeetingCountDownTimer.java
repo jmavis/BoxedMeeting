@@ -2,14 +2,17 @@ package com.JaredMavis.MeetingTimer;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import android.content.Context;
 import android.os.CountDownTimer;
-import android.util.Log;
-
 import com.JaredMavis.boxedmeeting.R;
 
-public class MeetingCountDownTimer extends CountDownTimer{
+/**
+ * Used to count down to a given number at a given interval and will alert a listener with either a Value_TimerUpdate or Value_TimerFinished
+ * @author Jared Mavis
+ *
+ */
+public class MeetingCountDownTimer extends CountDownTimer {
+	@SuppressWarnings("unused")
 	private String TAG = "MeetingCountDownTimer";
 	
 	PropertyChangeListener _listener;
@@ -29,13 +32,12 @@ public class MeetingCountDownTimer extends CountDownTimer{
 
 	@Override
 	public void onFinish() {
-		//Log.d(TAG, "onFinish()");
 		_listener.propertyChange(new PropertyChangeEvent(this, _context.getString(R.string.Value_TimerFinished), 0, _timeLeft));
+		this.cancel();
 	}
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		Log.d(TAG, "onTick(" + Long.toString(millisUntilFinished) + ")");
 		_listener.propertyChange(new PropertyChangeEvent(this, _context.getString(R.string.Value_TimerUpdate), _timeLeft, millisUntilFinished));
 		_timeLeft = millisUntilFinished;
 	}
