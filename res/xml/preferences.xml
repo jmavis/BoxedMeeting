@@ -11,7 +11,7 @@
 						android:title="Max Meeting Time"
 						android:summary="Choose the maximum meeting time available"
 						android:key="maxMeetingTime"
-						android:defaultValue="60"
+						android:defaultValue="@integer/Value_DefaultMaxMeetingTimeInMins"
 						android:entries="@array/listMaxTime"
 						android:entryValues="@array/listMaxTimeValues" />
 				

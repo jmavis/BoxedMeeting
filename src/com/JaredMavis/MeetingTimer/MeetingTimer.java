@@ -34,7 +34,7 @@ public class MeetingTimer {
 		_timer = new MeetingCountDownTimer(_context, 
 										   _listener, 
 										   timeToRun, 
-										   _context.getResources().getInteger(R.string.Value_TimerUpdateIntervalInMs));
+										   _context.getResources().getInteger(R.integer.Value_TimerUpdateIntervalInMs));
 		_timer.start();
 	}
 	

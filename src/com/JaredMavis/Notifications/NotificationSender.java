@@ -17,14 +17,14 @@ public class NotificationSender {
 			setNotification(Utils.warningTimeInMins(context) + context.getString(R.string.String_WarningNotificationTitle), 
 							"", 
 							timeToGoOff - Utils.warningTimeInMs(context), 
-							context.getResources().getInteger(R.string.Value_Meeting5MinNotificationID), 
+							context.getResources().getInteger(R.integer.Value_Meeting5MinNotificationID), 
 							context);
 		} 
 		
 		setNotification(context.getString(R.string.String_EndNotificationTitle), 
 				        context.getString(R.string.String_EndNotificationText), 
 				        timeToGoOff, 
-				        context.getResources().getInteger(R.string.Value_MeetingEndNotificationID), 
+				        context.getResources().getInteger(R.integer.Value_MeetingEndNotificationID), 
 				        context);
 	}
 	
@@ -51,8 +51,8 @@ public class NotificationSender {
 
         Intent i = new Intent(context, NotificationService.class);
         
-        int endingID = context.getResources().getInteger(R.string.Value_MeetingEndNotificationID);
-        int warningID = context.getResources().getInteger(R.string.Value_Meeting5MinNotificationID);
+        int endingID = context.getResources().getInteger(R.integer.Value_MeetingEndNotificationID);
+        int warningID = context.getResources().getInteger(R.integer.Value_Meeting5MinNotificationID);
 
         PendingIntent displayIntentForEndingAlarm = PendingIntent.getActivity(context, endingID, i, 0);
         PendingIntent displayIntentForWarningAlarm = PendingIntent.getActivity(context, warningID, i, 0);

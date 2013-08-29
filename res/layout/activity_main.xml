@@ -44,7 +44,6 @@
                 android:layout_height="200px"
                 android:layout_below="@+id/timerDisplay"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="15dp"
                 android:tag="@style/button"
                 android:text="@string/Start" />
 

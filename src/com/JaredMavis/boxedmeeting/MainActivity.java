@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.JaredMavis.Notifications.NotificationSender;
 import com.JaredMavis.Utils.PreferenceHandler;
+import com.JaredMavis.Utils.Utils;
 import com.JaredMavis.Utils.ViewScaler;
 import com.google.analytics.tracking.android.EasyTracker;
 
@@ -33,11 +34,12 @@ public class MainActivity extends TimerActivity {
 		super.onPause();
 		if (_timer.isRunning()){
 			long timeToGoOff = System.currentTimeMillis() + _timer.getMillisLeft();
+			Log.d(TAG, "on pause with time " + timeToGoOff);
 			NotificationSender.setNotifications(_timer.getMillisLeft(), _shouldNotifyAtWarning, this);
 			markTimeAlarmEnds(timeToGoOff);
 			_timer.stop();	
 		} else {
-			markTimeAlarmEnds(-1); // TODO
+			markTimeAlarmEnds(-1);
 		}
 	}
 	
@@ -45,21 +47,21 @@ public class MainActivity extends TimerActivity {
 	protected void onResume() {
 		super.onResume();
 		loadPreferences();
+		NotificationSender.cancelNotificationsAndAlarms(this);
 		Log.d(TAG, "resuming. time from last session = " + _timeToGoOffFromLastSession);
 		long currentTime = System.currentTimeMillis();
-		if (_timeToGoOffFromLastSession != -1 && _timeToGoOffFromLastSession > currentTime){ //TODO
+		if (_timeToGoOffFromLastSession != -1 && _timeToGoOffFromLastSession > currentTime){
 			UpdateTimerToLastSessionTime(_timeToGoOffFromLastSession, currentTime);
+			_display.setStartTime(Utils.defaultStartingTimeInMS(this));
 			markTimeAlarmEnds(-1);
 		} else {
-			Log.d(TAG, "Setting to default time at " + defaultMeetingTime);
-			_display.setCurrent(defaultMeetingTime);
+			_display.setToLastStartTime();
 		}
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-		NotificationSender.cancelNotificationsAndAlarms(this);
 		EasyTracker.getInstance().activityStart(this);
 	}
 
@@ -81,10 +83,11 @@ public class MainActivity extends TimerActivity {
 	private void loadPreferences() {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		int maxTime = sharedPrefs.getInt(getResources().getString(R.string.PrefKey_MaxMeetingTime), R.string.Value_DefaultMaxMeetingTimeInMins);
+		int maxTime = sharedPrefs.getInt(getResources().getString(R.string.PrefKey_MaxMeetingTime), 
+										 getResources().getInteger(R.integer.Value_DefaultMaxMeetingTimeInMins));
 		
 		_display.setMaxTime(maxTime);
-		_shouldNotifyAtWarning = sharedPrefs.getBoolean("checkboxNotify", true); //TODO
+		_shouldNotifyAtWarning = sharedPrefs.getBoolean("checkboxNotify", true);
 		_timeToGoOffFromLastSession = sharedPrefs.getLong(timeToGoOffKey, -1);
 		defaultMeetingTime = sharedPrefs.getInt("defaultMeetingTime", 15);
 	}
@@ -105,8 +108,10 @@ public class MainActivity extends TimerActivity {
 	 */
 	private void UpdateTimerToLastSessionTime(long timeToGoOff, long currentTime){
 		long msLeft = timeToGoOff - currentTime;
-		_display.setCurrent((int) (msLeft / 1000));
-		_timer.start(msLeft);
+
+		_display.setCurrent(msLeft);
+		super.startTimer();
+		Log.d(TAG, "setting display to " + (int) (msLeft / 1000) + " ms left = " + msLeft);
 	}
 	
 	@Override
@@ -121,7 +126,7 @@ public class MainActivity extends TimerActivity {
 		switch (item.getItemId()) {
 			case R.id.options:
 				Intent myIntent = new Intent(getBaseContext(), PreferenceHandler.class);
-				startActivityForResult(myIntent, R.string.Value_PREFERENCESCREENREQUESTCODE);
+				startActivityForResult(myIntent, R.integer.Value_PREFERENCESCREENREQUESTCODE);
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -129,7 +134,7 @@ public class MainActivity extends TimerActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == R.string.Value_PREFERENCESCREENREQUESTCODE && resultCode == RESULT_OK) {
+		if (requestCode == R.integer.Value_PREFERENCESCREENREQUESTCODE && resultCode == RESULT_OK) {
 			loadPreferences();
 		}
 	}

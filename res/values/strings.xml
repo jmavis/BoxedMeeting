@@ -12,7 +12,8 @@
     <string name="Value_TimeLeft">TimeLeft</string>
     
     <!-- Timer Settings -->
-    <string name="Value_TimerUpdateIntervalInMs">1000</string>
+    <integer name="Value_TimerUpdateIntervalInMs">1000</integer>
+    <integer name="Value_TimerDefaultStartingTimeInMin">15</integer>
     <string-array name="Array_DefaultTimes">
         <item>5</item>
         <item>15</item>
@@ -22,9 +23,9 @@
     </string-array>
     
     <!-- Notification Settings -->
-    <string name="Value_MeetingEndNotificationID">1</string>
-    <string name="Value_Meeting5MinNotificationID">2</string>
-    <string name="Value_DefultWarningTimeInMins">5</string>
+    <integer name="Value_MeetingEndNotificationID">1</integer>
+    <integer name="Value_Meeting5MinNotificationID">2</integer>
+    <integer name="Value_DefultWarningTimeInMins">5</integer>
     
     <!-- Notification Value Keys -->
     <string name="Key_NotificaitonID">NotifID</string>
@@ -41,8 +42,8 @@
     
 	
     
-    <string name="Value_PREFERENCESCREENREQUESTCODE">1</string>
-    <string name="Value_DefaultMaxMeetingTimeInMins">60</string>
+    <integer name="Value_PREFERENCESCREENREQUESTCODE">1</integer>
+    <integer name="Value_DefaultMaxMeetingTimeInMins">60</integer>
     
     
     <!-- Preference keys -->

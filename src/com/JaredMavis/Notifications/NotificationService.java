@@ -89,7 +89,6 @@ public class NotificationService extends Service {
 		@Override
 		protected void onPostExecute(Void result) {
 			stopSelf();
-			mWakeLock.release();
 		}
 	}
 

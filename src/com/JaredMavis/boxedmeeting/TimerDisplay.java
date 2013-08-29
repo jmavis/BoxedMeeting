@@ -1,9 +1,13 @@
 package com.JaredMavis.boxedmeeting;
 
 import java.util.concurrent.TimeUnit;
+
+import com.JaredMavis.Utils.Utils;
+
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,8 +23,8 @@ import android.widget.TextView;
 public class TimerDisplay extends LinearLayout implements OnClickListener, OnLongClickListener {
     @SuppressWarnings("unused")
 	private static final String TAG = "NumberPicker";
-    private static final int DEFAULT_MAX = 60;
-    private static final int DEFAULT_MIN = 1;
+    private static final int DEFAULT_MAX = 60 * 1000 * 60;
+    private static final int DEFAULT_MIN = 1 * 1000 * 60;
     private static final double MAX_MULTIPLE = .45;
     private static final double MULTIPLE_INCREMENT = .075;
     private double currentMultiple = 1;
@@ -32,26 +36,25 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         		currentMultiple -= MULTIPLE_INCREMENT;
         	}
         	if (mIncrement) {
-                changeCurrent(mCurrent + 1);
+                incCurrent();
             } else if (mDecrement) {
-                changeCurrent(mCurrent - 1);
+            	decCurrent();
             }
         	mHandler.postDelayed(this, (long) (mSpeed*currentMultiple));
         }
     };
 
     private TextView mText;
-    protected int mStart;
-    protected int mEnd;
+    protected long mStart;
+    protected long mEnd;
     protected long msCurrent;
+    protected long msPrevious;
     protected int mCurrent;
     protected int mPrevious;
-    private int startingTime;
+    private long startingTime = -1;
     private long mSpeed = 300;
-
     private boolean mIncrement;
     private boolean mDecrement;
-    private boolean isCountingDown;
 
     public TimerDisplay(Context context) {
         this(context, null);
@@ -80,7 +83,6 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         
         mStart = DEFAULT_MIN;
         mEnd = DEFAULT_MAX;
-        isCountingDown = false;
     }
 
     @Override
@@ -92,10 +94,10 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
 
     /**
      * Will update the current value of the display to the given value in seconds
-     * @param current
+     * @param time in ms
      */
-    public void setCurrent(int current) {
-        mCurrent = current;
+    public void setCurrent(long timeMS) {
+        msCurrent = timeMS;
         updateView();
     }
 
@@ -110,9 +112,9 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     public void onClick(View v) {
         // now perform the increment/decrement
         if (R.id.increment == v.getId()) {
-            changeCurrent(mCurrent + 1);
+        	incCurrent();
         } else if (R.id.decrement == v.getId()) {
-            changeCurrent(mCurrent - 1);
+        	decCurrent();
         }
     }
 
@@ -122,30 +124,31 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
   			   TimeUnit.MILLISECONDS.toSeconds(value) -
   			   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(value))));
     }
+    
+    private void incCurrent(){
+        changeCurrent(msCurrent + (1000 * 60));
+    }
+    
+    private void decCurrent(){
+        changeCurrent(msCurrent - (1000 * 60));
+    }
 
-    protected void changeCurrent(int current) {
+    protected void changeCurrent(long currentMS) {
+    	Log.d(TAG, "changin current from " + currentMS + " max = " + mEnd + " min = " + mStart);
         // Wrap around the values if we go past the start or end
-        if (current > mEnd) {
-            current = mStart;
-        } else if (current < mStart) {
-            current = mEnd;
+        if (currentMS > mEnd) {
+        	currentMS = mStart;
+        } else if (currentMS < mStart) {
+        	currentMS = mEnd;
         }
-        mPrevious = mCurrent;
-        mCurrent = current;
+        msPrevious = msCurrent;
+        msCurrent = currentMS;
 
         updateView();
     }
 
     protected void updateView() {
-        /* If we don't have displayed values then use the
-         * current number else find the correct value in the
-         * displayed values for the current number.
-         */
-    	if (!isCountingDown){
-    		mText.setText(formatNumber(mCurrent*60*1000));
-    	} else {
-    		mText.setText(formatNumber(msCurrent));
-    	}       
+    	mText.setText(formatNumber(msCurrent));    
     }
 
     /**
@@ -186,8 +189,8 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     /**
      * @return the current value.
      */
-    public int getCurrent() {
-        return mCurrent;
+    public long getCurrent() {
+        return msCurrent;
     }
     
     /**
@@ -196,7 +199,6 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
      */
     public void LockDisplay(){
     	startingTime = getCurrent();
-    	isCountingDown = true;
     	mIncrementButton.setVisibility(View.INVISIBLE);
     	mDecrementButton.setVisibility(View.INVISIBLE);
     	mIncrementButton.setEnabled(false);
@@ -208,8 +210,7 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
      * Will re-enable the buttons to allow the time to be changed
      */
     public void UnLockDisplay(){
-    	isCountingDown = false;
-    	mCurrent = startingTime;
+    	msCurrent = startingTime;
     	updateView();
     	mIncrementButton.setVisibility(View.VISIBLE);
     	mDecrementButton.setVisibility(View.VISIBLE);
@@ -223,7 +224,27 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     	updateView();
     }
     
+    /**
+     * @param max in minutes
+     */
     public void setMaxTime(int max){
-    	mEnd = max;
+    	mEnd = max * 60 * 1000;
+    }
+    
+    public void setStartTime(long time){
+    	startingTime = time;
+    }
+    
+    public void setToLastStartTime(){
+    	msCurrent = getStartingTime();
+    	updateView();
+    }
+    
+    public long getStartingTime(){
+    	if (startingTime == -1){
+    		startingTime = Utils.defaultStartingTimeInMS(getContext());
+    	}
+    	Log.d(TAG, "getting starting time " + startingTime);
+    	return startingTime;
     }
 }

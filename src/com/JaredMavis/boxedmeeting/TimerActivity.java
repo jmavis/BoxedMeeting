@@ -10,6 +10,7 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,7 +30,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 
 	protected static boolean _shouldNotifyAtWarning;
 	protected static boolean _hasScaled;
-	private boolean _hasGaveFiveMinWarning;
+	private boolean _hasGaveWarningWarning;
 	
 	// Views
 	protected Button _startStopButton;
@@ -38,7 +39,6 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 	protected FrameLayout _rootLayout;
 	protected RelativeLayout _scalingContents;
 	
-	private int _currentMeetingStartTime;
 	private String[] _defaultTimes;
 	protected Resources _resources;
 	
@@ -47,6 +47,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d(TAG, "on create");
 		setContentView(R.layout.activity_main);
 
 		init();
@@ -79,8 +80,8 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 			long currentTime = (Long) event.getNewValue();
 			updateDisplay(currentTime);
 			if (shouldPlayWarningSound(currentTime)){
-				_tone.startTone(ToneGenerator.TONE_PROP_BEEP);
-				_hasGaveFiveMinWarning = true;
+				_tone.startTone(ToneGenerator.TONE_DTMF_1, 2000);
+				_hasGaveWarningWarning = true;
 			}
 		} else if (event.getPropertyName().equals(this.getString(R.string.Value_TimerFinished))){
 			onTimerFinish();
@@ -111,20 +112,15 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		if (_timer.isRunning()){
 			onStopClick();
 		} else {
-			onStartClick();
+			startTimer();
 		}
 	}
 	
-	/**
-	 * Called when the start button is clicked and will set up the display and start the timer
-	 */
-	private void onStartClick(){
+	protected void startTimer(){
 		_startStopButton.setText(this.getString(R.string.Stop));
-		_timer.start(getMeetingTimeInMillis());
-		_currentMeetingStartTime = _display.getCurrent();
-		updateDisplayToCurrent();
+		_timer.start(_display.getCurrent());
 		_display.LockDisplay();
-		_hasGaveFiveMinWarning = false;
+		_hasGaveWarningWarning = false;
 	}
 	
 	private void onStopClick(){
@@ -137,7 +133,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		updateDisplay(0);
 		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
-		_tone.startTone(ToneGenerator.TONE_PROP_BEEP2);
+		_tone.startTone(ToneGenerator.TONE_DTMF_1, 2000);
 		_display.UnLockDisplay();
 	}
 	
@@ -145,19 +141,19 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		return (_display.getCurrent() * 1000 * 60);
 	}
 	
-	private void updateDisplayToCurrent(){
-		updateDisplay(getMeetingTimeInMillis());
-	}
-	
 	private void updateDisplay(long timeLeft){
 		_display.UpdateDisplay(timeLeft);
 	}
 	
+	/**
+	 * @param currentTime in ms
+	 * @return true if the warning sound should be played at the current time
+	 */
 	private boolean shouldPlayWarningSound(long currentTime){
 		return (_shouldNotifyAtWarning && 
-				!_hasGaveFiveMinWarning && 
+				!_hasGaveWarningWarning && 
 				currentTime <= Utils.warningTimeInMs(this) && 
-				_currentMeetingStartTime >= Utils.warningTimeInMins(this));
+				_display.getStartingTime() >= Utils.warningTimeInMs(this));
 	}
 	
 	private void showDefaultChoicesDialog(){
