@@ -1,11 +1,10 @@
 package com.JaredMavis.Utils;
 
 import android.content.Context;
-import android.util.Log;
-
 import com.JaredMavis.boxedmeeting.R;
 
 public class Utils {
+	@SuppressWarnings("unused")
 	private static final String TAG = "Utils";
 	
 	public static long warningTimeInMs(Context context){

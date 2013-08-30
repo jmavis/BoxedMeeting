@@ -35,10 +35,11 @@
     <!-- Notificaiton Values -->
 	    <!-- End Notification Values -->
 	    <string name="String_EndNotificationTitle">Time is up</string>
-	    <string name="String_EndNotificationText">Time is up</string>
+	    <string name="String_EndNotificationText"></string>
 	    
 	    <!-- Warning Notificaition Values -->
-	    <string name="String_WarningNotificationTitle">minutes left</string>
+	    <string name="String_WarningNotificationTitle"> minutes left</string>
+	    <string name="String_WarningNotificationText">Warning alert</string>
     
 	
     

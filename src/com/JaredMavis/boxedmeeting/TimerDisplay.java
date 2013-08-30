@@ -1,19 +1,16 @@
 package com.JaredMavis.boxedmeeting;
 
 import java.util.concurrent.TimeUnit;
-
-import com.JaredMavis.Utils.Utils;
-
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.JaredMavis.Utils.Utils;
 
 /**
  * This class is based off of google's number picker class
@@ -134,7 +131,6 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     }
 
     protected void changeCurrent(long currentMS) {
-    	Log.d(TAG, "changin current from " + currentMS + " max = " + mEnd + " min = " + mStart);
         // Wrap around the values if we go past the start or end
         if (currentMS > mEnd) {
         	currentMS = mStart;
@@ -235,6 +231,10 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     	startingTime = time;
     }
     
+    public void setDefaultStartTime(){
+    	startingTime = Utils.defaultStartingTimeInMS(getContext());
+    }
+    
     public void setToLastStartTime(){
     	msCurrent = getStartingTime();
     	updateView();
@@ -242,9 +242,8 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
     
     public long getStartingTime(){
     	if (startingTime == -1){
-    		startingTime = Utils.defaultStartingTimeInMS(getContext());
+    		setDefaultStartTime();
     	}
-    	Log.d(TAG, "getting starting time " + startingTime);
     	return startingTime;
     }
 }

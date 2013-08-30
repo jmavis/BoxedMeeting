@@ -5,12 +5,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
+
 import com.JaredMavis.boxedmeeting.MainActivity;
 import com.JaredMavis.boxedmeeting.R;
 
@@ -60,12 +62,14 @@ public class NotificationService extends Service {
 		@Override
 		protected Void doInBackground(Intent... params) {
 			Intent intent = params[0];
-			int notifID = intent.getExtras().getInt("NotifID");
-			String title = intent.getExtras().getString("Title");
-			String text = intent.getExtras().getString("Text");
+			Resources resources = getBaseContext().getResources();
+			int notifID = intent.getExtras().getInt(resources.getString(R.string.Key_NotificaitonID));
+			String title = intent.getExtras().getString(resources.getString(R.string.Key_NotificaitionTitle));
+			String text = intent.getExtras().getString(resources.getString(R.string.Key_NotificaitionText));
 
+			
 			Intent i = new Intent(getBaseContext(), MainActivity.class);
-			i.putExtra("NotifID", notifID);
+			i.putExtra(resources.getString(R.string.Key_NotificaitonID), notifID);
 
 			PendingIntent detailsIntent = PendingIntent.getActivity(
 					getBaseContext(), 0, i, 0);
@@ -75,13 +79,16 @@ public class NotificationService extends Service {
 			Notification notif = new Notification(R.drawable.ic_launcher,
 					title, System.currentTimeMillis());
 
-			CharSequence from = "BoxedMeeting";
+			CharSequence from = title;
 			CharSequence message = text;
 			notif.setLatestEventInfo(getBaseContext(), from, message,
 					detailsIntent);
+			
+			Log.d(TAG, "making a notification with title '" + title + "' and text = '" + message + "'");
 
-			notif.vibrate = new long[] { 100, 250, 100, 500 };
+			notif.vibrate = new long[] { 0, 250, 100, 500 };
 
+			NotificationSender.cancelNotifications(getBaseContext()); // cancel any previous notifications before we send a new one
 			nm.notify(notifID, notif);
 			return null;
 		}

@@ -5,12 +5,11 @@ import java.beans.PropertyChangeListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -30,7 +29,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 
 	protected static boolean _shouldNotifyAtWarning;
 	protected static boolean _hasScaled;
-	private boolean _hasGaveWarningWarning;
+	protected boolean _hasGaveWarningWarning;
 	
 	// Views
 	protected Button _startStopButton;
@@ -42,12 +41,13 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 	private String[] _defaultTimes;
 	protected Resources _resources;
 	
-	final ToneGenerator _tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100);
+	private Vibrator _tone;
+	private long[] _tonePatternEnd = {0, 200, 300, 300, 300, 300};
+	private long[] _tonePatternWarning = {0, 200, 300, 300, 300};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "on create");
 		setContentView(R.layout.activity_main);
 
 		init();
@@ -58,6 +58,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		_timer = new MeetingTimer(getBaseContext(), this);
 		_hasScaled = false;
 		_resources = getResources();
+		_tone = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		_defaultTimes = _resources.getStringArray(R.array.Array_DefaultTimes);
     }
 
@@ -80,7 +81,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 			long currentTime = (Long) event.getNewValue();
 			updateDisplay(currentTime);
 			if (shouldPlayWarningSound(currentTime)){
-				_tone.startTone(ToneGenerator.TONE_DTMF_1, 2000);
+				playNotification(_tonePatternWarning);
 				_hasGaveWarningWarning = true;
 			}
 		} else if (event.getPropertyName().equals(this.getString(R.string.Value_TimerFinished))){
@@ -133,7 +134,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		updateDisplay(0);
 		_startStopButton.setText(this.getString(R.string.Start));
 		_timer.stop();
-		_tone.startTone(ToneGenerator.TONE_DTMF_1, 2000);
+		playNotification(_tonePatternEnd);
 		_display.UnLockDisplay();
 	}
 	
@@ -152,8 +153,8 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 	private boolean shouldPlayWarningSound(long currentTime){
 		return (_shouldNotifyAtWarning && 
 				!_hasGaveWarningWarning && 
-				currentTime <= Utils.warningTimeInMs(this) && 
-				_display.getStartingTime() >= Utils.warningTimeInMs(this));
+				currentTime < Utils.warningTimeInMs(this) && 
+				_display.getStartingTime() > Utils.warningTimeInMs(this));
 	}
 	
 	private void showDefaultChoicesDialog(){
@@ -162,7 +163,7 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		builder.setItems(_defaultTimes , new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				_display.setCurrent(Integer.valueOf(_defaultTimes[which]));
+				_display.setCurrent(Integer.valueOf(_defaultTimes[which])*60*1000);
 				dialog.dismiss();
 			}
 		});
@@ -174,5 +175,9 @@ public class TimerActivity extends Activity implements PropertyChangeListener,  
 		});
 		AlertDialog alert = builder.create();
 		alert.show();
+	}
+	
+	private void playNotification(long[] pattern){
+		_tone.vibrate(pattern, -1);
 	}
 }
