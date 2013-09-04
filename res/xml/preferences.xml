@@ -6,14 +6,6 @@
 						android:defaultValue="true"
 						android:summary="Choose if you want to be notified at the 5 minute left mark"
 						android:key="checkboxNotify" />
-
-				<ListPreference
-						android:title="Max Meeting Time"
-						android:summary="Choose the maximum meeting time available"
-						android:key="maxMeetingTime"
-						android:defaultValue="@integer/Value_DefaultMaxMeetingTimeInMins"
-						android:entries="@array/listMaxTime"
-						android:entryValues="@array/listMaxTimeValues" />
 				
 				<Preference
 						android:title="Save and Return"

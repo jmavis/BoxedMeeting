@@ -54,7 +54,7 @@ public class NotificationSender {
 	}
 	
 	static private PendingIntent getWarningIntent(Context context){
-		return (getBaseIntent(Utils.warningTimeInMins(context) + context.getString(R.string.String_WarningNotificationTitle), 
+		return (getBaseIntent(Integer.toString(Utils.warningTimeInMins(context)) + " " + context.getString(R.string.String_WarningNotificationTitle),
 				context.getString(R.string.String_WarningNotificationText), 
 				context.getResources().getInteger(R.integer.Value_Meeting5MinNotificationID), 
 				context));

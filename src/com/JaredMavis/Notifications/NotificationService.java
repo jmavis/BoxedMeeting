@@ -40,8 +40,6 @@ public class NotificationService extends Service {
 	 * you * probably won't, either.
 	 */
 	private void handleIntent(Intent intent) {
-		Log.d(TAG, "handle intent");
-
 		// obtain the wake lock
 		PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -67,7 +65,6 @@ public class NotificationService extends Service {
 			String title = intent.getExtras().getString(resources.getString(R.string.Key_NotificaitionTitle));
 			String text = intent.getExtras().getString(resources.getString(R.string.Key_NotificaitionText));
 
-			
 			Intent i = new Intent(getBaseContext(), MainActivity.class);
 			i.putExtra(resources.getString(R.string.Key_NotificaitonID), notifID);
 
@@ -84,8 +81,6 @@ public class NotificationService extends Service {
 			notif.setLatestEventInfo(getBaseContext(), from, message,
 					detailsIntent);
 			
-			Log.d(TAG, "making a notification with title '" + title + "' and text = '" + message + "'");
-
 			notif.vibrate = new long[] { 0, 250, 100, 500 };
 
 			NotificationSender.cancelNotifications(getBaseContext()); // cancel any previous notifications before we send a new one
@@ -107,7 +102,6 @@ public class NotificationService extends Service {
 	@Override
 	/** * This is called on 2.0+ (API level 5 or higher). Returning * START_NOT_STICKY tells the system to not restart the service if it is * killed because of poor resource (memory/cpu) conditions. */
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
 		handleIntent(intent);
 		return START_NOT_STICKY;
 	}

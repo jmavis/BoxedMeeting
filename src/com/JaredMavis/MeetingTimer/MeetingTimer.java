@@ -1,9 +1,7 @@
 package com.JaredMavis.MeetingTimer;
 
 import java.beans.PropertyChangeListener;
-
 import com.JaredMavis.boxedmeeting.R;
-
 import android.content.Context;
 
 /**

@@ -80,10 +80,6 @@ public class MainActivity extends TimerActivity {
 	private void loadPreferences() {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		int maxTime = sharedPrefs.getInt(getResources().getString(R.string.PrefKey_MaxMeetingTime), 
-										 getResources().getInteger(R.integer.Value_DefaultMaxMeetingTimeInMins));
-		
-		_display.setMaxTime(maxTime);
 		_shouldNotifyAtWarning = sharedPrefs.getBoolean("checkboxNotify", true);
 		_timeToGoOffFromLastSession = sharedPrefs.getLong(timeToGoOffKey, -1);
 	}
@@ -95,7 +91,7 @@ public class MainActivity extends TimerActivity {
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		SharedPreferences.Editor editor = sharedPrefs.edit();
 		editor.putLong(this.getString(R.string.PrefKey_TimeToGoOff), timeToGoOff); 
-		editor.apply();
+		editor.commit();
 	}
 
 	/**

@@ -38,7 +38,7 @@
 	    <string name="String_EndNotificationText"></string>
 	    
 	    <!-- Warning Notificaition Values -->
-	    <string name="String_WarningNotificationTitle"> minutes left</string>
+	    <string name="String_WarningNotificationTitle">minutes left</string>
 	    <string name="String_WarningNotificationText">Warning alert</string>
     
 	

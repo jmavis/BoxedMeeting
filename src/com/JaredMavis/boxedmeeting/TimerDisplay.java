@@ -115,11 +115,13 @@ public class TimerDisplay extends LinearLayout implements OnClickListener, OnLon
         }
     }
 
-    private String formatNumber(long value) {
+    private String formatNumber(long valueInMS) {
+    	int totalSeconds = (int) (valueInMS / 1000);
+    	int totalMinutes = totalSeconds / 60;
+    	int leftOverSeconds = totalSeconds % 60;
     	return (String.format("%02d:%02d",
-  			   TimeUnit.MILLISECONDS.toMinutes(value),
-  			   TimeUnit.MILLISECONDS.toSeconds(value) -
-  			   TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(value))));
+    			totalMinutes,
+  			   leftOverSeconds));
     }
     
     private void incCurrent(){
